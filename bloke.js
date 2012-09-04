@@ -3,17 +3,21 @@
  * Author: Johannes J. Schmidt
  * (c) 2012 null2 GmbH
  * */
-(function() {
+
+;(function($, doc, win) {
+  var name = 'bloke',
+      selector = '[contenteditable]';
+
   var formats = [
     {
       title: 'Heading',
       command: 'formatBlock',
-      value: 'H1'
+      value: 'h2'
     },
     {
       title: 'Paragraph',
       command: 'formatBlock',
-      value: 'P'
+      value: 'p'
     },
     {
       title: 'Italic',
@@ -40,50 +44,71 @@
     }
   ];
 
-  function toolbar(element) {
+  function buildToolbar() {
     var toolbar = $('<menu>');
 
     toolbar.addClass('bloke-toolbar');
+    toolbar.css('position', 'absolute');
 
     formats.forEach(function(format) {
       var button = $('<button>');
 
       button.attr('title', format.title);
 
-      button.data('command', format.command);
-      button.data('value', format.value);
-      button.data('get', format.get);
-      button.data('ask', format.ask);
-      button.data('default', format.default);
+      button.attr('data-command', format.command);
+      button.attr('data-value', format.value);
+      button.attr('data-get', format.get);
+      button.attr('data-ask', format.ask);
+      button.attr('data-default', format.default);
 
       button.html(format.title);
 
       toolbar.append(button);
     });
 
-    element.before(toolbar);
-
-    toolbar.css('position', 'absolute');
+    return toolbar;
   }
 
-  $(document.body).on('focus', '[contenteditable]', function(e) {
-    toolbar($(e.target));
-  });
-  $(document.body).on('blur', '[contenteditable]', function(e) {
-    // wait a bit
-    setTimeout(function() {
-      $(e.target).prev('.bloke-toolbar').remove()
-    }, 100);
-  });
-  $(document.body).on('click', '.bloke-toolbar', function(e) {
-    // re show toolbar
-    $(this).next('[contenteditable]').focus();
-  });
-  $(document.body).on('click', '.bloke-toolbar button', function(e) {
-    var button = $(this);
-    
-    if (button.data('get')) return document.execCommand(button.data('command'), false, prompt(button.data('ask'), button.data('default')));
-    
-    document.execCommand(button.data('command'), false, button.data('value'));
-  });
-})();
+  function Bloke(el, opts) {
+    this.$el      = $(el);
+    this.$el.data(name, this);
+
+    this.defaults = {};
+
+    var meta      = this.$el.data(name + '-opts');
+    this.opts     = $.extend(this.defaults, opts, meta);
+
+    var $toolbar = buildToolbar();
+
+    this.$el.on('focus', '[contenteditable]', function(e) {
+      $(e.target).before($toolbar);
+    });
+    this.$el.on('blur', '[contenteditable]', function(e) {
+      var $el = $(this);
+
+      // wait a bit
+      setTimeout(function() {
+        if (!$el.is(':focus')) $toolbar.detach();
+      }, 500);
+    });
+    this.$el.on('click', '.bloke-toolbar', function(e) {
+      // re show toolbar, set focus
+      $(this).next('[contenteditable]').focus();
+    });
+    this.$el.on('click', '.bloke-toolbar button', function(e) {
+      var button = $(this);
+      
+      if (button.data('get')) return doc.execCommand(button.data('command'), false, prompt(button.data('ask'), button.data('default')));
+      
+      doc.execCommand(button.data('command'), false, button.data('value'));
+      
+      $(this).next('[contenteditable]').focus();
+    });
+  };
+
+  $.fn.bloke = function(opts) {
+    return this.each(function() {
+      new Bloke(this, opts);
+    });
+  };
+})(jQuery, document, window);
