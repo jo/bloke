@@ -1,0 +1,10 @@
+/* Bloke - a Poor Text Editor
+ *
+ * Author: Johannes J. Schmidt
+ * (c) 2012 null2 GmbH
+ * */
+.bloke-toolbar {
+  margin: -3.5ex 0 0 0;
+  padding: 0;
+  height: 3.5ex;
+}
