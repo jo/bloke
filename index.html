@@ -10,6 +10,15 @@
       <h2>I don't mean its stupid.</h2>
       <p>Its just - say - a little less minded.</p>
     </div>
+    <div class=bloke-toolbar hidden>
+      <button title="Heading" data-command="formatBlock" data-value="h2">Heading</button>
+      <button title="Paragraph" data-command="formatBlock" data-value="p">Paragraph</button>
+      <button title="Italic" data-command="italic">Italic</button>
+      <button title="Bold" data-command="bold">Bold</button>
+      <button title="Underline" data-command="underline">Underline</button>
+      <button title="List" data-command="insertUnorderedList">List</button>
+      <button title="Link" data-command="createLink" data-get="href" data-ask="Please enter the URL. Use &quot;mailto:me@example.com&quot; to link to an e-mail address." data-default="http://">Link</button>
+    </div>
     <script>
       $(document.body).bloke();
     </script>
